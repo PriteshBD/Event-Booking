@@ -10,9 +10,9 @@ error_reporting(E_ALL);
 session_start();
 include 'db_connect.php';
 
-// Check if user is Admin
-if (!isset($_SESSION['role']) || $_SESSION['role'] != 'admin') {
-    die("Access Denied. Admins Only.");
+// Check if user is logged in
+if (!isset($_SESSION['user_id'])) {
+    die("Access Denied. Please <a href='login.php'>login</a> to post an event.");
 }
 
 if (isset($_POST['submit_event'])) {

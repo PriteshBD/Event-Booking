@@ -53,6 +53,7 @@ body {
     max-width: 1100px;
     text-align: center; /* headings and CTAs centered */
     box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    border: none;
 }
 
 /* Seat / Modal styles */
@@ -191,7 +192,7 @@ body {
 
 .event-card .price {
     font-weight: 700;
-    color: #e5e7eb; /* same light grey as body text */
+    color: #e5e7eb;
     font-size: 16px;
 }
 

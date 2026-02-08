@@ -36,7 +36,7 @@ $reviews_result = mysqli_query($conn, $reviews_sql);
     <title><?php echo $event['title']; ?> - Details</title>
     <style>
         body { font-family: sans-serif; padding: 20px; background-color: #111827; color: #e5e7eb; }
-        .nav { background: #1F2937; padding: 10px; color: #e5e7eb; margin-bottom: 20px; }
+        .nav { background: #1F2937; padding: 10px; color: #e5e7eb; margin-bottom: 20px; border-radius: 8px; }
         .nav a { color: #e5e7eb; margin-right: 15px; text-decoration: none; }
         .event-details { max-width: 800px; margin: 0 auto; background: #1F2937; padding: 20px; border-radius: 8px; color: #e5e7eb; }
         .event-image { width: 100%; height: 300px; object-fit: cover; border-radius: 8px; }
@@ -46,17 +46,16 @@ $reviews_result = mysqli_query($conn, $reviews_sql);
         button { background-color: #6366f1; color: #040025; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; }
         button:hover { background-color: #22d3ee; }
     </style>
-    <script src="https://www.paypal.com/sdk/js?client-id=Ad3PJuzwknTqCnmIMI767plher_kOKbRB2R3JK_dooW8GNFt0Gh4o3GBsaYCyI09CBhzNFdvlLTzc_UK&currency=INR"></script>
 </head>
 <body>
 
 <div class="nav">
-    <strong>CONNECT</strong>
+    <strong style="margin-right: 20px;">CONNECT</strong>
     <a href="index.php">Home</a>
     <a href="my_bookings.php">My Tickets</a>
+    <a href="add_event.php">Post Event</a>
     <?php if($_SESSION['role'] == 'admin'): ?>
         <a href="admin_dashboard.php">Admin Dashboard</a>
-        <a href="add_event.php">Post Event</a>
     <?php endif; ?>
     <a href="logout.php" style="float:right;">Logout (<?php echo $_SESSION['username']; ?>)</a>
 </div>
@@ -106,7 +105,7 @@ $reviews_result = mysqli_query($conn, $reviews_sql);
         <div id="purchase" style="display:none; margin-top:16px; text-align:center;">
             <label>Quantity</label>
             <input type="number" id="ticket-qty" min="1" value="1" style="width:80px; padding:8px; border-radius:8px; margin:8px 0; background:#020617; color:#e5e7eb; border:1px solid #1e293b;">
-            <div id="paypal-button-container"></div>
+            <br><button id="payGeneralBtn" style="margin-top:10px;">Pay Now</button>
         </div>
 
         <!-- Seat Selection Modal -->
@@ -132,13 +131,12 @@ $reviews_result = mysqli_query($conn, $reviews_sql);
 
                 <div style="margin-top:12px;">Selected: <strong id="selectedSeat">None</strong></div>
                 <div style="margin-top:12px; display:flex; gap:8px; justify-content:center;">
-                    <button id="payForSeat" style="display:none;">Pay & Book Seat</button>
+                    <button id="payForSeat" style="display:none;">Pay Now</button>
                     <?php if ($event['price'] == 0): ?>
                         <button id="freeBookSeat" style="display:none;">Confirm Free Booking</button>
                     <?php endif; ?>
                     <button id="closeSeatModal">Close</button>
                 </div>
-                <div id="paypal-seat-container" style="margin-top:14px;"></div>
             </div>
         </div>
 
@@ -169,7 +167,6 @@ $reviews_result = mysqli_query($conn, $reviews_sql);
             showBtn.addEventListener('click', function(){
                 document.getElementById('purchase').style.display='block';
                 showBtn.style.display='none';
-                renderPayPal();
             });
         }
 
@@ -179,7 +176,6 @@ $reviews_result = mysqli_query($conn, $reviews_sql);
         if(closeSeat){
             closeSeat.addEventListener('click', function(){
                 seatModal.style.display='none';
-                document.getElementById('paypal-seat-container').innerHTML = '';
             });
         }
 
@@ -192,11 +188,18 @@ $reviews_result = mysqli_query($conn, $reviews_sql);
                 el.classList.add('selected');
                 var seat = el.getAttribute('data-seat');
                 selectedSeatEl.textContent = seat;
-                payForSeatBtn.style.display = 'inline-block';
-                if (freeBookBtn) freeBookBtn.style.display = 'inline-block';
+                
+                // Only show Pay button if price > 0
+                if (<?php echo floatval($event['price']); ?> > 0) {
+                    payForSeatBtn.style.display = 'inline-block';
+                } else if (freeBookBtn) {
+                    freeBookBtn.style.display = 'inline-block';
+                }
 
-                // Initialize PayPal button for this seat
-                initPayPalForSeat(seat);
+                // Update Pay button click for seat
+                payForSeatBtn.onclick = function() {
+                    startRazorpayPayment(1, seat);
+                };
             });
         });
 
@@ -208,29 +211,28 @@ $reviews_result = mysqli_query($conn, $reviews_sql);
             });
         }
 
+        // General Purchase Button
+        var payGeneral = document.getElementById('payGeneralBtn');
+        if(payGeneral) {
+            payGeneral.addEventListener('click', function(){
+                var qty = document.getElementById('ticket-qty').value;
+                startRazorpayPayment(qty, 'General');
+            });
+        }
+
     });
 
-    function initPayPalForSeat(seat) {
+    function startRazorpayPayment(qty, seat) {
         var price = <?php echo floatval($event['price']); ?>;
-        var target = document.getElementById('paypal-seat-container');
-        target.innerHTML = ''; // clear previous
-        paypal.Buttons({
-            createOrder: function(data, actions) {
-                return actions.order.create({
-                    purchase_units: [{ amount: { currency_code: 'INR', value: (price).toFixed(2) } }]
-                });
-            },
-            onApprove: function(data, actions) {
-                return actions.order.capture().then(function(details) {
-                    // Redirect and include seat
-                    window.location.href = "save_booking.php?event_id=<?php echo $event['id']; ?>&seat=" + seat + "&qty=1&status=Paid";
-                });
-            },
-            onError: function(err){
-                console.error('Payment error:', err);
-                alert('Payment failed. Please try again.');
-            }
-        }).render('#paypal-seat-container');
+        var totalAmount = price * qty;
+
+        // SIMULATED PAYMENT (No Account Required)
+        if(confirm("Mock Payment Gateway:\n\nPay ₹" + totalAmount + " for " + qty + " ticket(s)?\n\nClick OK to simulate a successful payment.")) {
+            // Redirect to save booking as if payment was successful
+            // We generate a fake payment ID using random numbers
+            var mockPaymentId = "pay_mock_" + Math.floor(Math.random() * 1000000);
+            window.location.href = "save_booking.php?event_id=<?php echo $event['id']; ?>&seat=" + seat + "&qty=" + qty + "&status=Paid&payment_id=" + mockPaymentId;
+        }
     }
 
     // If user came from select_seat.php with preselect parameter, auto-open modal and select
