@@ -8,18 +8,18 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] != 'admin') {
 }
 
 // 1. Calculate Total Revenue
-$revenue_query = "SELECT SUM(events.price) as total_revenue 
+$revenue_stmt = $conn->prepare("SELECT SUM(events.price) as total_revenue 
                   FROM bookings 
                   JOIN events ON bookings.event_id = events.id 
-                  WHERE bookings.payment_status = 'Paid'";
-$revenue_result = mysqli_query($conn, $revenue_query);
-$revenue_data = mysqli_fetch_assoc($revenue_result);
+                  WHERE bookings.payment_status = 'Paid'");
+$revenue_stmt->execute();
+$revenue_data = $revenue_stmt->fetch(PDO::FETCH_ASSOC);
 $total_revenue = $revenue_data['total_revenue'] ? $revenue_data['total_revenue'] : 0;
 
 // 2. Count Total Tickets Sold
-$tickets_query = "SELECT COUNT(*) as total_sold FROM bookings";
-$tickets_result = mysqli_query($conn, $tickets_query);
-$tickets_data = mysqli_fetch_assoc($tickets_result);
+$tickets_stmt = $conn->prepare("SELECT COUNT(*) as total_sold FROM bookings");
+$tickets_stmt->execute();
+$tickets_data = $tickets_stmt->fetch(PDO::FETCH_ASSOC);
 $total_sold = $tickets_data['total_sold'];
 
 ?>
@@ -67,14 +67,14 @@ $total_sold = $tickets_data['total_sold'];
             <th>Status</th>
         </tr>
         <?php
-        $sql = "SELECT bookings.id, users.username, events.title, events.price, bookings.payment_status 
+        $stmt = $conn->prepare("SELECT bookings.id, users.username, events.title, events.price, bookings.payment_status 
                 FROM bookings 
                 JOIN users ON bookings.user_id = users.id 
                 JOIN events ON bookings.event_id = events.id
-                ORDER BY bookings.id DESC";
-        $result = mysqli_query($conn, $sql);
+                ORDER BY bookings.id DESC");
+        $stmt->execute();
 
-        while ($row = mysqli_fetch_assoc($result)) {
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             echo "<tr>";
             echo "<td>#" . $row['id'] . "</td>";
             echo "<td>" . $row['username'] . "</td>";
@@ -96,9 +96,9 @@ $total_sold = $tickets_data['total_sold'];
             <th>Actions</th>
         </tr>
         <?php
-        $events_sql = "SELECT * FROM events ORDER BY event_date DESC";
-        $events_result = mysqli_query($conn, $events_sql);
-        while ($event = mysqli_fetch_assoc($events_result)) {
+        $events_stmt = $conn->prepare("SELECT * FROM events ORDER BY event_date DESC");
+        $events_stmt->execute();
+        while ($event = $events_stmt->fetch(PDO::FETCH_ASSOC)) {
             echo "<tr>";
             echo "<td>" . $event['title'] . "</td>";
             echo "<td>" . $event['category'] . "</td>";

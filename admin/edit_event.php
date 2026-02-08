@@ -8,19 +8,21 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] != 'admin') {
 }
 
 $event_id = $_GET['id'];
-$event = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM events WHERE id = '$event_id'"));
+$event_stmt = $conn->prepare("SELECT * FROM events WHERE id = ?");
+$event_stmt->execute([$event_id]);
+$event = $event_stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$event) {
     die("Event not found.");
 }
 
 if (isset($_POST['update_event'])) {
-    $title = mysqli_real_escape_string($conn, $_POST['title']);
-    $desc = mysqli_real_escape_string($conn, $_POST['description']);
-    $location = mysqli_real_escape_string($conn, $_POST['location']);
+    $title = $_POST['title'];
+    $desc = $_POST['description'];
+    $location = $_POST['location'];
     $price = $_POST['price'];
     $date = $_POST['date'];
-    $speaker = mysqli_real_escape_string($conn, $_POST['speaker']);
+    $speaker = $_POST['speaker'];
     $category = $_POST['category'];
 
     // Image upload if new
@@ -32,12 +34,12 @@ if (isset($_POST['update_event'])) {
         move_uploaded_file($_FILES["event_image"]["tmp_name"], $target_file);
     }
 
-    $sql = "UPDATE events SET title='$title', image_path='$target_file', description='$desc', location_url='$location', price='$price', event_date='$date', speaker='$speaker', category='$category' WHERE id='$event_id'";
-
-    if (mysqli_query($conn, $sql)) {
+    $stmt = $conn->prepare("UPDATE events SET title=?, image_path=?, description=?, location_url=?, price=?, event_date=?, speaker=?, category=? WHERE id=?");
+    
+    if ($stmt->execute([$title, $target_file, $desc, $location, $price, $date, $speaker, $category, $event_id])) {
         echo "<script>alert('Event Updated Successfully!'); window.location.href='dashboard.php';</script>";
     } else {
-        echo "Error: " . mysqli_error($conn);
+        echo "Error: Unable to update event";
     }
 }
 ?>

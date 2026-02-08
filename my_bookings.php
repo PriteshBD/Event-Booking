@@ -32,17 +32,17 @@ $user_id = $_SESSION['user_id'];
     <a href="index.php">Back to Home</a> | <a href="logout.php">Logout</a>
 
     <?php
-   $sql = "SELECT bookings.id as booking_id,bookings.seat_number, events.id as event_id, events.title, events.event_date, events.location_url, events.speaker 
+   $stmt = $conn->prepare("SELECT bookings.id as booking_id, bookings.seat_number, events.id as event_id, events.title, events.event_date, events.location_url, events.speaker 
         FROM bookings 
         JOIN events ON bookings.event_id = events.id 
-        WHERE bookings.user_id = '$user_id'";
-    $result = mysqli_query($conn, $sql);
+        WHERE bookings.user_id = ?");
+    $stmt->execute([$user_id]);
 
-    if (mysqli_num_rows($result) == 0) {
+    if ($stmt->rowCount() == 0) {
         echo "<p>You haven't booked any seminars yet.</p>";
     }
 
-    while ($row = mysqli_fetch_assoc($result)) {
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         // Create unique data for QR Code (Booking ID + Event Name)
         $qr_data = "Ticket-ID:" . $row['booking_id'] . "-Event:" . urlencode($row['title']);
         $qr_url = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" . $qr_data;

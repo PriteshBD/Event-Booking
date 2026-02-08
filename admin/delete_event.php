@@ -10,15 +10,22 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] != 'admin') {
 $event_id = $_GET['id'];
 
 if (isset($event_id)) {
-    // Delete related bookings first to avoid foreign key issues
-    mysqli_query($conn, "DELETE FROM bookings WHERE event_id = '$event_id'");
-    mysqli_query($conn, "DELETE FROM reviews WHERE event_id = '$event_id'");
-    
-    $sql = "DELETE FROM events WHERE id = '$event_id'";
-    if (mysqli_query($conn, $sql)) {
-        echo "<script>alert('Event Deleted Successfully!'); window.location.href='dashboard.php';</script>";
-    } else {
-        echo "Error: " . mysqli_error($conn);
+    try {
+        // Delete related bookings first to avoid foreign key issues
+        $stmt1 = $conn->prepare("DELETE FROM bookings WHERE event_id = ?");
+        $stmt1->execute([$event_id]);
+        
+        $stmt2 = $conn->prepare("DELETE FROM reviews WHERE event_id = ?");
+        $stmt2->execute([$event_id]);
+        
+        $stmt3 = $conn->prepare("DELETE FROM events WHERE id = ?");
+        if ($stmt3->execute([$event_id])) {
+            echo "<script>alert('Event Deleted Successfully!'); window.location.href='dashboard.php';</script>";
+        } else {
+            echo "Error: Unable to delete event";
+        }
+    } catch (Exception $e) {
+        echo "Error: " . $e->getMessage();
     }
 } else {
     echo "No event ID provided.";

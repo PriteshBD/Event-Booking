@@ -16,12 +16,12 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 if (isset($_POST['submit_event'])) {
-    $title = mysqli_real_escape_string($conn, $_POST['title']);
-    $desc = mysqli_real_escape_string($conn, $_POST['description']);
-    $location = mysqli_real_escape_string($conn, $_POST['location']);
+    $title = $_POST['title'];
+    $desc = $_POST['description'];
+    $location = $_POST['location'];
     $price = $_POST['price'];
     $date = $_POST['date'];
-    $speaker = mysqli_real_escape_string($conn, $_POST['speaker']);
+    $speaker = $_POST['speaker'];
     $category = $_POST['category'];
     $user_id = $_SESSION['user_id'];
 
@@ -44,13 +44,12 @@ if (isset($_POST['submit_event'])) {
     }
     // --------------------------
 
-    $sql = "INSERT INTO events (title, image_path, description, location_url, price, event_date, created_by, speaker, category) 
-            VALUES ('$title', '$target_file', '$desc', '$location', '$price', '$date', '$user_id', '$speaker', '$category')";
-
-    if (mysqli_query($conn, $sql)) {
+    $stmt = $conn->prepare("INSERT INTO events (title, image_path, description, location_url, price, event_date, created_by, speaker, category) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    
+    if ($stmt->execute([$title, $target_file, $desc, $location, $price, $date, $user_id, $speaker, $category])) {
         echo "<h3>Event Posted Successfully! <a href='../index.php'>View Website</a></h3>";
     } else {
-        echo "Error: " . mysqli_error($conn);
+        echo "Error: Unable to add event";
     }
 }
 ?>

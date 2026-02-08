@@ -86,35 +86,38 @@ include 'config/db.php';
     <?php
     // Dynamic Query Builder for Search
     $sql = "SELECT * FROM events WHERE 1=1";
+    $params = [];
 
     if (isset($_GET['search']) && !empty($_GET['search'])) {
-        $search = $_GET['search'];
-        $sql .= " AND title LIKE '%$search%'";
+        $sql .= " AND title LIKE ?";
+        $params[] = '%' . $_GET['search'] . '%';
     }
     if (isset($_GET['category']) && !empty($_GET['category'])) {
-        $cat = $_GET['category'];
-        $sql .= " AND category = '$cat'";
+        $sql .= " AND category = ?";
+        $params[] = $_GET['category'];
     }
 
     $sql .= " ORDER BY event_date DESC";
-    $result = mysqli_query($conn, $sql);
+    $stmt = $conn->prepare($sql);
+    $stmt->execute($params);
+    $result = $stmt;
     ?>
     <div class="container" style="background-color:#1F2937;">
     <div class="card">
         <h1 style="color: #e5e7eb;">Available Events</h1>
 
-    <?php if (mysqli_num_rows($result) > 0) {
+    <?php if ($result->rowCount() > 0) {
         echo "<div class='events-grid'>";
-        while ($row = mysqli_fetch_assoc($result)) {
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
             $event_id_loop = $row['id'];
-            $review_q = "SELECT AVG(rating) as avg_rating FROM reviews WHERE event_id = '$event_id_loop'";
-            $rev_res = mysqli_query($conn, $review_q);
-            $rev = mysqli_fetch_assoc($rev_res);
+            $review_stmt = $conn->prepare("SELECT AVG(rating) as avg_rating FROM reviews WHERE event_id = ?");
+            $review_stmt->execute([$event_id_loop]);
+            $rev = $review_stmt->fetch(PDO::FETCH_ASSOC);
             $avg_rating = $rev['avg_rating'] ? round($rev['avg_rating'],1) : '4.5';
 
-            $att_q = "SELECT COUNT(*) as attendees FROM bookings WHERE event_id = '$event_id_loop'";
-            $att_res = mysqli_query($conn, $att_q);
-            $att = mysqli_fetch_assoc($att_res);
+            $att_stmt = $conn->prepare("SELECT COUNT(*) as attendees FROM bookings WHERE event_id = ?");
+            $att_stmt->execute([$event_id_loop]);
+            $att = $att_stmt->fetch(PDO::FETCH_ASSOC);
             $attendees = $att['attendees'];
 
             echo "<div class='event-card' onclick=\"window.location.href='view_event.php?id=" . $row['id'] . "'\">";

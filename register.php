@@ -10,12 +10,12 @@ if (isset($_POST['register'])) {
     // Encrypt the password (Security best practice)
     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-    $sql = "INSERT INTO users (username, email, password, role) VALUES ('$username', '$email', '$hashed_password', '$role')";
+    $stmt = $conn->prepare("INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)");
 
-    if (mysqli_query($conn, $sql)) {
+    if ($stmt->execute([$username, $email, $hashed_password, $role])) {
         echo "Registration Successful! <a href='login.php'>Login here</a>";
     } else {
-        echo "Error: " . mysqli_error($conn);
+        echo "Error: Unable to register user";
     }
 }
 ?>

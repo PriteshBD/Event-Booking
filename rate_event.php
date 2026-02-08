@@ -14,22 +14,22 @@ $event_id = $_GET['id'];
 // Check if the form was submitted
 if (isset($_POST['submit_review'])) {
     $rating = $_POST['rating'];
-    $comment = mysqli_real_escape_string($conn, $_POST['comment']);
+    $comment = $_POST['comment'];
 
     // Insert the review
-    $sql = "INSERT INTO reviews (user_id, event_id, rating, comment) VALUES ('$user_id', '$event_id', '$rating', '$comment')";
+    $stmt = $conn->prepare("INSERT INTO reviews (user_id, event_id, rating, comment) VALUES (?, ?, ?, ?)");
     
-    if (mysqli_query($conn, $sql)) {
+    if ($stmt->execute([$user_id, $event_id, $rating, $comment])) {
         echo "<script>alert('Thank you for your review!'); window.location.href='my_bookings.php';</script>";
     } else {
-        echo "Error: " . mysqli_error($conn);
+        echo "Error: Unable to submit review";
     }
 }
 
 // Get Event Name for display
-$event_sql = "SELECT title FROM events WHERE id = '$event_id'";
-$event_result = mysqli_query($conn, $event_sql);
-$event = mysqli_fetch_assoc($event_result);
+$event_stmt = $conn->prepare("SELECT title FROM events WHERE id = ?");
+$event_stmt->execute([$event_id]);
+$event = $event_stmt->fetch(PDO::FETCH_ASSOC);
 ?>
 
 <?php
