@@ -1,147 +1,112 @@
-# Event-Booking Website
+# 🎟️ Event Booking System | Seminar & Venue Management
 
-A PHP-based Event Booking System with user authentication, event management, and ticket booking functionality.
+![Project Status](https://img.shields.io/badge/Status-Completed-success)
+![Tech Stack](https://img.shields.io/badge/Stack-PHP%20%7C%20MySQL-blue)
+![License](https://img.shields.io/badge/License-MIT-green)
 
-## 📁 Project Structure
-
-```
-Event-Booking/
-├── config/
-│   └── db.php              # Database connection configuration
-├── admin/
-│   ├── dashboard.php       # Admin dashboard
-│   ├── add_event.php       # Add new event form
-│   ├── edit_event.php      # Edit event form
-│   └── delete_event.php    # Delete event handler
-├── assets/
-│   ├── css/
-│   │   └── style.css       # Main stylesheet
-│   ├── js/                 # JavaScript files (future)
-│   └── img/                # Image assets
-├── includes/               # Reusable PHP components (prepared)
-├── uploads/
-│   └── posters/            # Event poster images
-├── index.php               # Homepage
-├── login.php               # User login
-├── register.php            # User registration
-├── view_event.php          # Event details page
-├── buy_ticket.php          # Ticket purchase page
-├── select_seat.php         # Seat selection
-├── my_bookings.php         # User bookings history
-├── rate_event.php          # Event rating system
-├── save_booking.php        # Booking handler
-└── logout.php              # User logout
-```
-
-## 🚀 Features
-
-- ✅ User Authentication (Login/Register)
-- ✅ Event Listing & Details
-- ✅ Ticket Booking System
-- ✅ Seat Selection
-- ✅ Admin Panel for Event Management
-- ✅ Event Rating System
-- ✅ User Booking History
-- ✅ Responsive Design
-
-## 📋 Requirements
-
-- PHP 7.4+
-- MySQL/MariaDB
-- XAMPP or similar local server
-- Web Browser
-
-## 🔧 Installation
-
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/PriteshBD/Event-Booking.git
-   cd Event-Booking
-   ```
-
-2. **Setup Database:**
-   - Create a MySQL database named `connect_db`
-   - Import any SQL dump files if available
-
-3. **Configure Database Connection:**
-   - Edit `config/db.php` with your database credentials
-   - Ensure MySQL server is running
-
-4. **Access the Application:**
-   - Place project in `htdocs/` or web root
-   - Start Apache & MySQL in XAMPP
-   - Navigate to: `http://localhost/Event-Booking/`
-
-## 🔐 Security Notes
-
-- **Important:** `config/db.php` is in `.gitignore` and should never be committed
-- Update database credentials in `config/db.php` before deploying
-- Use parameterized queries to prevent SQL injection
-- Sanitize user inputs properly
-
-## 📝 Database Configuration
-
-Update `config/db.php` with your credentials:
-
-```php
-<?php
-$servername = "localhost";
-$username = "root";
-$password = ""; // Your password
-$dbname = "connect_db";
-
-$conn = mysqli_connect($servername, $username, $password, $dbname);
-
-if (!$conn) {
-    die("Connection failed: " . mysqli_connect_error());
-}
-?>
-```
-
-## 👤 User Roles
-
-- **Regular User:** Can browse events, book tickets, rate events
-- **Admin:** Can manage events (add, edit, delete), view bookings, access dashboard
-
-## 📸 Event Image Upload
-
-Event posters are uploaded to `uploads/` directory with timestamp-based filenames for uniqueness.
-
-## 🎨 Styling
-
-Main stylesheet: `assets/css/style.css`
-- Dark theme with purple/cyan accent colors
-- Responsive grid layout for event cards
-- Modern UI components
-
-## 🐛 Troubleshooting
-
-**Database Connection Issues:**
-- Verify MySQL is running in XAMPP
-- Check credentials in `config/db.php`
-- Ensure database `connect_db` exists
-
-**File Upload Errors:**
-- Check `uploads/` directory has write permissions
-- Verify file size limits in PHP config
-
-**Admin Access Denied:**
-- Ensure user role is set to 'admin' in database
-- Clear browser cache/cookies
-
-## 📄 License
-
-This project is open source. Feel free to modify and use as needed.
-
-## 👨‍💻 Author
-
-PriteshBD - [GitHub Profile](https://github.com/PriteshBD)
-
-## 🤝 Contributing
-
-Feel free to fork, modify, and submit pull requests!
+> **A comprehensive web-based platform for managing events, booking tickets, and handling venue logistics.**
+> *Designed to streamline the gap between Event Organizers and Attendees with a seamless digital interface.*
 
 ---
 
-**Last Updated:** February 2026
-**Version:** 1.0
+## 📖 Overview
+
+The **Event Booking System** is a full-stack web application that allows users to browse upcoming seminars, workshops, and entertainment events, and book seats in real-time. 
+
+Unlike standard booking forms, this system implements **Role-Based Access Control (RBAC)**, separating the logic for generic Users (Attendees) and Administrators (Organizers). It solves the problem of manual registration by automating seat allocation and generating digital booking references.
+
+---
+
+## 🚀 Key Features
+
+### 👤 User Module (Attendee)
+* **Event Discovery:** Browse events by category (Seminars, Concerts, Workshops).
+* **Real-Time Availability:** View seat availability before booking.
+* **Instant Booking:** User-friendly form to reserve spots instantly.
+* **Booking History:** A dedicated dashboard to view past and upcoming reservations.
+
+### 🛠️ Admin Module (Organizer)
+* **Event CRUD:** Create, Read, Update, and Delete event listings.
+* **Attendee Management:** View the list of registered users for any specific event.
+* **Venue Logic:** Set maximum capacity limits to prevent overbooking.
+* **Reporting:** (Optional) Generate simple lists of attendees for check-in.
+
+---
+
+## 🛠️ Technology Stack
+
+| Component | Technology Used |
+| :--- | :--- |
+| **Frontend** | HTML5, CSS3, Bootstrap (for responsiveness), JavaScript |
+| **Backend** | Core PHP |
+| **Database** | MySQL (Relational Schema) |
+| **Server** | Apache (XAMPP/WAMP) |
+
+---
+
+## 📸 Application Previews
+
+| **Event Catalog** | **Booking Interface** |
+|:---:|:---:|
+| <img src="screenshots/home_page.png" alt="Home Page" width="400"> | <img src="screenshots/booking_page.png" alt="Booking Page" width="400"> |
+
+| **Admin Dashboard** | **User Profile** |
+|:---:|:---:|
+| <img src="screenshots/admin_panel.png" alt="Admin Dashboard" width="400"> | <img src="screenshots/user_dashboard.png" alt="User Dashboard" width="400"> |
+
+*(Note: Screenshots are strictly for demonstration. Please clone the repo to view the live application.)*
+
+---
+
+## 💻 Installation Guide
+
+Follow these steps to set up the project locally:
+
+1.  **Clone the Repository**
+    ```bash
+    git clone [https://github.com/PriteshBD/Event-Booking.git](https://github.com/PriteshBD/Event-Booking.git)
+    ```
+
+2.  **Database Setup**
+    * Open **phpMyAdmin** (`http://localhost/phpmyadmin`).
+    * Create a database named `event_booking_db`.
+    * Import the `database.sql` file located in the root directory.
+
+3.  **Configure Connection**
+    * Edit the `db_connection.php` file (or equivalent config file):
+        ```php
+        $conn = mysqli_connect("localhost", "root", "", "event_booking_db");
+        ```
+
+4.  **Run the Project**
+    * Move the folder to your `htdocs` directory.
+    * Visit: `http://localhost/Event-Booking/`
+
+---
+
+## 🧠 System Architecture (MVC Approach)
+
+This project follows a structured architecture to ensure scalability:
+* **Database Layer:** Normalized SQL tables for `users`, `events`, and `bookings` to reduce redundancy.
+* **Logic Layer:** PHP scripts handle form validation, session security (preventing unauthorized URL access), and SQL injection protection.
+* **Presentation Layer:** Responsive frontend that adapts to Mobile, Tablet, and Desktop screens.
+
+---
+
+## 🔮 Roadmap & Future Enhancements
+
+* [ ] **QR Code Integration:** Generate unique QR codes for tickets to be scanned at the venue.
+* [ ] **Payment Gateway:** Integrate **Razorpay** or **Stripe** for paid events.
+* [ ] **Email Notifications:** Auto-send booking confirmation emails using SMTP.
+
+---
+
+## 👨‍💻 Author
+
+## 💻 Developed By
+
+* **Pritesh Diwale** - *Project Lead & Frontend Development* - [GitHub](https://github.com/PriteshBD) , [LinkedIn](https://www.linkedin.com/in/pritesh-diwale/)
+* **Harsh More** - *Backend Development & Database Management* - [GitHub](https://github.com/moreharsh244) , [LinkedIn](https://www.linkedin.com/in/moreharsh244/)
+
+> This project was a collaborative effort to simulate a real-world SDLC (Software Development Life Cycle) environment.
+---
